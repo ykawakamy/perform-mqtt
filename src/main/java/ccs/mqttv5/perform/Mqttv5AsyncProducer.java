@@ -11,6 +11,7 @@ import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import ccs.mqtt.data.LatencyMeasurePing;
 import ccs.mqtt.data.LatencyMeasurePingSerializer;
@@ -20,8 +21,8 @@ public class Mqttv5AsyncProducer {
     private static final Logger log = LoggerFactory.getLogger(Mqttv5AsyncProducer.class);
 
     public static void main(String[] args) throws Exception, MqttException {
-//        SLF4JBridgeHandler.removeHandlersForRootLogger();
-//        SLF4JBridgeHandler.install();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
 
         String topic = System.getProperty("ccs.perform.topic", "test");
         String key = System.getProperty("ccs.perform.key", "defaultkey");

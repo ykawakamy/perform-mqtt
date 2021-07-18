@@ -14,7 +14,7 @@
     </appender>
 
     <logger name="ccs" level="INFO"/>
-    <logger name="org.eclipse.paho.mqttv5.client" level="DEBUG"/>
+    <logger name="org.eclipse.paho.mqttv5" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
