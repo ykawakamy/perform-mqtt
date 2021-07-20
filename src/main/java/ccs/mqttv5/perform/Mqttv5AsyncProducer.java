@@ -26,7 +26,7 @@ public class Mqttv5AsyncProducer {
 
         String topic = System.getProperty("ccs.perform.topic", "test");
         String key = System.getProperty("ccs.perform.key", "defaultkey");
-        int qos = Integer.getInteger("qos", 0);
+        int qos = Integer.getInteger("qos", 2);
         int iter = Integer.valueOf(System.getProperty("ccs.perform.iterate", "20"));
         long loop_ns = 5_000_000_000L; // ns = 5s
 
@@ -67,13 +67,14 @@ public class Mqttv5AsyncProducer {
                 long et = 0;
 
                 while ((et = System.nanoTime()) - st < loop_ns) {
-                    if( client.isConnected()) {
+                    if( client.isConnected() && client.getInFlightMessageCount() < 10000) {
                         MqttMessage message = new MqttMessage(serializer.serialize(topic, new LatencyMeasurePing(seq)));
                         message.setQos(qos);
                         client.publish(topic, message);
                         seq++;
                         cnt++;
                     }else {
+                        Thread.onSpinWait();
                     }
                 }
 

@@ -9,6 +9,7 @@ import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import ccs.mqtt.data.LatencyMeasurePing;
 import ccs.mqtt.data.LatencyMeasurePingDeserializer;
@@ -22,12 +23,12 @@ public class Mqttv5Consumer {
     private static final Logger log = LoggerFactory.getLogger(Mqttv5Consumer.class);
 
     public static void main(String[] args) throws Exception {
-//        SLF4JBridgeHandler.removeHandlersForRootLogger();
-//        SLF4JBridgeHandler.install();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
 
         String topic = System.getProperty("ccs.perform.topic", "test");
         String groupid = System.getProperty("ccs.perform.groupid", "defaultgroup");
-        int qos = Integer.getInteger("qos", 1);
+        int qos = Integer.getInteger("qos", 2);
         String key = System.getProperty("ccs.perform.key", "defaultkey");
         long loop_ns = 5_000_000_000L; // ns = 5s
         int iter = Integer.valueOf(System.getProperty("ccs.perform.iterate", "20"));
