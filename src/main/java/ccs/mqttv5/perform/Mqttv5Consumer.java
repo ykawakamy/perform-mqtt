@@ -1,5 +1,6 @@
 package ccs.mqttv5.perform;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -7,6 +8,7 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
+import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -17,6 +19,7 @@ import ccs.perform.util.CommonProperties;
 import ccs.perform.util.PerformCounterMap;
 import ccs.perform.util.PerformHistogram;
 import ccs.perform.util.PerformSnapshot;
+import ccs.perform.util.TopicNameSupplier;
 
 public class Mqttv5Consumer {
     /** ロガー */
@@ -27,6 +30,7 @@ public class Mqttv5Consumer {
         SLF4JBridgeHandler.install();
 
         String topic = System.getProperty("ccs.perform.topic", "test");
+        String topicrange = System.getProperty("ccs.perform.topicrange", null);
         String groupid = System.getProperty("ccs.perform.groupid", "defaultgroup");
         int qos = Integer.getInteger("qos", 2);
         String key = System.getProperty("ccs.perform.key", "defaultkey");
@@ -40,6 +44,8 @@ public class Mqttv5Consumer {
         hist.addShutdownHook();
 
         PerformCounterMap pcMap = new PerformCounterMap();
+
+        TopicNameSupplier supplier = TopicNameSupplier.create(topic, topicrange);
 
         LatencyMeasurePingDeserializer serializer = new LatencyMeasurePingDeserializer();
 
@@ -62,10 +68,14 @@ public class Mqttv5Consumer {
         connOpts.setCleanStart(true);
 
         client.connect(connOpts);
-        client.subscribe(topic, qos);
+        List<String> topics = supplier.getAll();
+        MqttSubscription[] subscriptions = new MqttSubscription[topics.size()];
+        for ( int i=0 ; i<topics.size() ; i++ ) {
+            subscriptions[i] = new MqttSubscription(topics.get(i), qos);
+        }
+        client.subscribe(subscriptions);
 
         try {
-            // トピックを指定してメッセージを送信する
             for( int i=0 ; i != iter ; i++ ) {
                 long st = System.nanoTime();
                 long et = 0;

@@ -27,6 +27,8 @@ public class Mqttv5AsyncConsumer {
         SLF4JBridgeHandler.install();
 
         String topic = System.getProperty("ccs.perform.topic", "test");
+        String topicrange = System.getProperty("ccs.perform.topicrange", null);
+        
         String groupid = System.getProperty("ccs.perform.groupid", "defaultgroup");
         int qos = Integer.getInteger("qos", 0);
         String key = System.getProperty("ccs.perform.key", "defaultkey");

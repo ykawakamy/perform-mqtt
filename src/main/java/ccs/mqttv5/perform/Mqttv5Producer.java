@@ -15,6 +15,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import ccs.mqtt.data.LatencyMeasurePing;
 import ccs.mqtt.data.LatencyMeasurePingSerializer;
 import ccs.perform.util.CommonProperties;
+import ccs.perform.util.TopicNameSupplier;
 
 public class Mqttv5Producer {
     private static final Logger log = LoggerFactory.getLogger(Mqttv5Producer.class);
@@ -23,7 +24,8 @@ public class Mqttv5Producer {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
-        String topic = System.getProperty("ccs.perform.topic", "test");
+        String topicprefix = System.getProperty("ccs.perform.topic", "test");
+        String topicrange = System.getProperty("ccs.perform.topicrange", null);
         String key = System.getProperty("ccs.perform.key", "defaultkey");
         int qos = Integer.getInteger("qos", 2);
         int iter = Integer.valueOf(System.getProperty("ccs.perform.iterate", "20"));
@@ -47,6 +49,8 @@ public class Mqttv5Producer {
 
         client.connect(connOpts);
 
+        TopicNameSupplier supplier = TopicNameSupplier.create(topicprefix, topicrange);
+
         LatencyMeasurePingSerializer serializer = new LatencyMeasurePingSerializer();
         try {
 
@@ -60,6 +64,7 @@ public class Mqttv5Producer {
 
 
                 while ((et = System.nanoTime()) - st < loop_ns) {
+                    String topic = supplier.get();
                     MqttMessage message = new MqttMessage(serializer.serialize(topic, new LatencyMeasurePing(seq)));
                     message.setQos(qos);
                     client.publish(topic, message);
